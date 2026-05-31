@@ -35,7 +35,10 @@ def count():
 ######################################################################
 @app.route("/picture", methods=["GET"])
 def get_pictures():
-    pass
+    if data:
+        return jsonify(data), 200
+
+    return {"message": "Internal server error"}, 500
 
 ######################################################################
 # GET A PICTURE
@@ -44,7 +47,13 @@ def get_pictures():
 
 @app.route("/picture/<int:id>", methods=["GET"])
 def get_picture_by_id(id):
-    pass
+    if data:
+        for i in data:
+            if i["id"] == id:
+                return jsonify(i), 200
+        return {"message": "Image does not exist"}, 404
+
+    return {"message": "internal server error"}, 500
 
 
 ######################################################################
@@ -52,7 +61,15 @@ def get_picture_by_id(id):
 ######################################################################
 @app.route("/picture", methods=["POST"])
 def create_picture():
-    pass
+    image_data = request.json
+    if data:
+        for i in data:
+            if i["id"] == image_data["id"]:
+                return {"Message": "picture with id {} already present".format(image_data["id"])}, 302
+
+        data.append(image_data)
+        return image_data, 201
+    return {"message": "Internal server error"}, 500
 
 ######################################################################
 # UPDATE A PICTURE
@@ -61,11 +78,24 @@ def create_picture():
 
 @app.route("/picture/<int:id>", methods=["PUT"])
 def update_picture(id):
-    pass
+    image_data = request.json
+    for index, image in enumerate(data):
+        if image["id"] == id:
+            data[index] = image_data
+            return image, 201
+
+    return {"message": "Image not found"}, 404
+
 
 ######################################################################
 # DELETE A PICTURE
 ######################################################################
 @app.route("/picture/<int:id>", methods=["DELETE"])
 def delete_picture(id):
-    pass
+    for index, image in enumerate(data):
+        if image["id"] == id:
+            deleted_image = data.pop(id)
+            return {}, 204
+        
+    return {"message": "picture not found"}, 404
+
